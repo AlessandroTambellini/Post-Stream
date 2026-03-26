@@ -160,7 +160,7 @@ handlers['/profile'].GET = async function(req_data)
     const { 
         data: posts, 
         db_error: posts_error, 
-    } = db_ops.select_user_posts_page(user_id);    
+    } = db_ops.exists_user_posts_page(user_id);    
 
     let post_cards = [];
     let info_msg = '';
@@ -204,7 +204,7 @@ handlers['/notifications'].GET = async function(req_data)
     const { 
         data: notifications, 
         db_error: notifications_error,
-    } = db_ops.select_user_notifications_page(user_id);
+    } = db_ops.exists_user_notifications_page(user_id);
 
     if (notifications_error) {
         return new Res(500, fallback_page(500, ERR_INVALID_DB_QUERY('get', 'notifications')), type.HTML);
@@ -590,7 +590,7 @@ handlers['/api/user/token'].GET = function(req_data)
         return new Res(400, ERR_INVALID_SEARCH_PARAM('password'), type.JSON);
     }
 
-    const { data: user, db_error } = db_ops.select_user(password_hash);
+    const { data: user, db_error } = db_ops.exists_user(password_hash);
 
     if (db_error) {
         return new Res(500, ERR_INVALID_DB_QUERY('select', 'user'), type.JSON);
@@ -626,7 +626,7 @@ handlers['/api/user/token'].POST = function(req_data)
         return new Res(400, ERR_INVALID_PAYLOAD_FIELD('password'), type.JSON);
     }
 
-    const { data: user, db_error } = db_ops.select_user(password_hash);
+    const { data: user, db_error } = db_ops.exists_user(password_hash);
 
     if (db_error) {
         return new Res(500, ERR_INVALID_DB_QUERY('select', 'user'), type.JSON);
@@ -665,7 +665,7 @@ handlers['/api/user/token'].PUT = function(req_data)
         return new Res(400, ERR_INVALID_PAYLOAD_FIELD('password'), type.JSON);
     }
 
-    const { data: user, db_error} = db_ops.select_user(password_hash);
+    const { data: user, db_error} = db_ops.exists_user(password_hash);
 
     if (db_error) {
         return new Res(500, ERR_INVALID_DB_QUERY('select', 'user'), type.JSON);
@@ -982,9 +982,9 @@ handlers['/api/user/posts'].GET = function(req_data)
 
     let db_res = null;
     if (page) {
-        db_res = db_ops.select_user_posts_page(user_id, page);
+        db_res = db_ops.exists_user_posts_page(user_id, page);
     } else {
-        db_res = db_ops.select_user_posts_match(user_id, match);
+        db_res = db_ops.exists_user_posts_match(user_id, match);
     }
 
     if (db_res.db_error) {
@@ -1027,9 +1027,9 @@ handlers['/api/user/notifications'].GET = function(req_data)
 
     let db_res = null;
     if (page) {
-        db_res = db_ops.select_user_notifications_page(user_id, page);
+        db_res = db_ops.exists_user_notifications_page(user_id, page);
     } else {
-        db_res = db_ops.select_user_notifications_match(user_id, match);
+        db_res = db_ops.exists_user_notifications_match(user_id, match);
     }
 
     if (db_res.db_error) {
@@ -1118,7 +1118,7 @@ function auth_user(cookies)
         return res;
     }
 
-    const { data: user, db_error } = db_ops.select_user(cookies.password_hash);
+    const { data: user, db_error } = db_ops.exists_user(cookies.password_hash);
 
     if (db_error) {
         res.auth_error.code = 500;

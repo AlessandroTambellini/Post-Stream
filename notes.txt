@@ -1,0 +1,1 @@
+- The logout functionality is implemented only on the client-side. On the server-side nothing happens

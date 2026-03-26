@@ -51,8 +51,8 @@ db_ops.select_token = user_id => (
     select_data('select_token', user_id)
 );
 
-db_ops.select_user = password_hash => (
-    select_data('select_user', password_hash)
+db_ops.exists_user = password_hash => (
+    select_data('exists_user', password_hash)
 );
 
 db_ops.select_post = id => (
@@ -87,24 +87,24 @@ db_ops.select_posts_page = (page = 1) => (
     select_data_page('select_posts_page', page)
 );
 
-db_ops.select_user_posts_page = (user_id, page = 1) => (
-    select_data_page('select_user_posts_page', page, user_id)
+db_ops.exists_user_posts_page = (user_id, page = 1) => (
+    select_data_page('exists_user_posts_page', page, user_id)
 );
 
-db_ops.select_user_notifications_page = (user_id, page = 1) => (
-    select_data_page('select_user_notifications_page', page, user_id)
+db_ops.exists_user_notifications_page = (user_id, page = 1) => (
+    select_data_page('exists_user_notifications_page', page, user_id)
 );
 
 db_ops.select_post_replies_page = (post_id, page = 1) => (
     select_data_page('select_post_replies_page', page, post_id)
 );
 
-db_ops.select_user_posts_match = (user_id, search_term) => (
-    select_data_match('select_user_posts_match', user_id, search_term)
+db_ops.exists_user_posts_match = (user_id, search_term) => (
+    select_data_match('exists_user_posts_match', user_id, search_term)
 );
 
-db_ops.select_user_notifications_match = (user_id, search_term) => (
-    select_data_match('select_user_notifications_match', user_id, search_term)
+db_ops.exists_user_notifications_match = (user_id, search_term) => (
+    select_data_match('exists_user_notifications_match', user_id, search_term)
 );
 
 db_ops.update_token = (user_id) => (
@@ -284,7 +284,7 @@ function init_db()
     `);
 
     queries.insert_user = db.prepare('INSERT INTO users (password_hash) VALUES (?)');
-    queries.select_user = db.prepare('SELECT * FROM users WHERE password_hash = ?');
+    queries.exists_user = db.prepare('SELECT * FROM users WHERE password_hash = ?');
     queries.delete_user = db.prepare('DELETE FROM users WHERE id = ?');
 
     queries.insert_token = db.prepare('INSERT INTO tokens (user_id, expires_at) VALUES (?, ?)');
@@ -319,7 +319,7 @@ function init_db()
         SELECT * FROM posts 
         ORDER BY created_at DESC LIMIT ${PAGE_SIZE} OFFSET ?
     `);
-    queries.select_user_posts_page = db.prepare(`
+    queries.exists_user_posts_page = db.prepare(`
         SELECT * FROM posts 
         WHERE user_id = ? 
         ORDER BY created_at DESC LIMIT ${PAGE_SIZE} OFFSET ?
@@ -329,19 +329,19 @@ function init_db()
         WHERE post_id = ?
         ORDER BY created_at DESC LIMIT ${PAGE_SIZE} OFFSET ?
     `);
-    queries.select_user_notifications_page = db.prepare(`
+    queries.exists_user_notifications_page = db.prepare(`
         SELECT n.*, posts.content AS post_content FROM notifications n
         JOIN posts ON n.post_id = posts.id
         WHERE n.user_id = ? 
         ORDER BY n.created_at DESC LIMIT ${PAGE_SIZE} OFFSET ?
     `);
 
-    queries.select_user_posts_match = db.prepare(`
+    queries.exists_user_posts_match = db.prepare(`
         SELECT p.* FROM posts p
         WHERE p.user_id = ? AND LOWER(p.content) LIKE '%' || ? || '%'
         LIMIT ${PAGE_SIZE}
     `);
-    queries.select_user_notifications_match = db.prepare(`
+    queries.exists_user_notifications_match = db.prepare(`
         SELECT n.*, posts.content AS post_content FROM notifications n
         JOIN posts ON n.post_id = posts.id
         WHERE n.user_id = ? AND LOWER(posts.content) LIKE '%' || ? || '%'
